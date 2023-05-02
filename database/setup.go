@@ -21,19 +21,19 @@ type DBConfig struct {
 var dbConfig *DBConfig
 var DB *gorm.DB
 
-func init(){
-	viper.SetDefault("database.host","localhost")
-	viper.SetDefault("database.port","3306")
+func init() {
+	viper.SetDefault("database.host", "localhost")
+	viper.SetDefault("database.port", "3306")
 }
 
-func Load() error{
+func Load() error {
 	viper.SetConfigName("ConfigDB")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok{
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			return err
 		}
 	}
@@ -41,19 +41,19 @@ func Load() error{
 	dbConfig = new(DBConfig)
 
 	dbConfig = &DBConfig{
-		Host: viper.GetString("database.host"),
-		Port: viper.GetString("database.port"),
-		User: viper.GetString("database.user"),
-		Pass: viper.GetString("database.pass"),
+		Host:     viper.GetString("database.host"),
+		Port:     viper.GetString("database.port"),
+		User:     viper.GetString("database.user"),
+		Pass:     viper.GetString("database.pass"),
 		Database: viper.GetString("database.database"),
 	}
 
 	return nil
 }
 
-func ConnectDatabase() error{
+func ConnectDatabase() error {
 	err := Load()
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -63,8 +63,8 @@ func ConnectDatabase() error{
 	if err != nil {
 		panic(err)
 	}
-
-	db.AutoMigrate(&models.Address{}, &models.User{}, &models.ServiceProvider{})
+	db.Migrator().DropTable(&models.User{})
+	db.AutoMigrate(&models.User{})
 	DB = db
 	return nil
 }
